@@ -1,11 +1,28 @@
+import express from 'express';
+import Book from '../models/Book.js';
 
-const express = require('express');
 const router = express.Router();
-const bookController = require('../controllers/bookController');
 
-router.get('/', bookController.getAllBooks);
-router.post('/', bookController.createBook);
-router.put('/:id', bookController.updateBook);
-router.delete('/:id', bookController.deleteBook);
+// GET all books
+router.get('/', async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.json(books);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-module.exports = router;
+// POST a new book
+router.post('/', async (req, res) => {
+  try {
+    const { title, author, year } = req.body;
+    const newBook = new Book({ title, author, year });
+    await newBook.save();
+    res.status(201).json(newBook);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+export default router;
